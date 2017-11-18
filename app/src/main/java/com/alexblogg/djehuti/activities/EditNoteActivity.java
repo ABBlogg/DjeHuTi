@@ -34,6 +34,11 @@ public class EditNoteActivity extends AppCompatActivity {
         text = findViewById(R.id.note_text);
         saveButton = findViewById(R.id.save_button);
 
+        if (getIntent().getStringExtra(C.INTENT_GOAL_FIELD).equals(C.GOAL_EDIT)) {
+            name.setText(getIntent().getStringExtra(C.INTENT_NAME_FIELD));
+            text.setText(getIntent().getStringExtra(C.INTENT_TEXT_FIELD));
+        }
+
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,14 +59,13 @@ public class EditNoteActivity extends AppCompatActivity {
                         //Log.d(TAG, "onClick: the goal is to add");
                     } else if (getIntent().getStringExtra(C.INTENT_GOAL_FIELD).equals(C.GOAL_EDIT)) {
                         setResult(C.INTENT_RESULT_EDIT_NOTE, intent);
+                        intent.putExtra(C.INTENT_ID_FIELD, getIntent().getIntExtra(C.INTENT_ID_FIELD, 0));
                         //Log.d(TAG, "onClick: the goal is to edit");
                     }
 
                     //Log.d(TAG, "onClick: the activity will now finish");
 
                     finish();
-
-
                 }
             }
         });

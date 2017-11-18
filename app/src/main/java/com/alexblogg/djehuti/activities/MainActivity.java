@@ -1,10 +1,12 @@
 package com.alexblogg.djehuti.activities;
 
 import android.arch.persistence.room.Room;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,8 +17,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.alexblogg.djehuti.C;
 import com.alexblogg.djehuti.R;
 import com.alexblogg.djehuti.database.DHTDataBase;
+import com.alexblogg.djehuti.database.entities.Note;
 import com.alexblogg.djehuti.fragments.FieldFragment;
 import com.alexblogg.djehuti.fragments.HomeFragment;
 import com.alexblogg.djehuti.fragments.NoteFragment;
@@ -26,7 +30,15 @@ import com.alexblogg.djehuti.fragments.TaskFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = "MainActivity";
+
     public static DHTDataBase db;
+
+    private HomeFragment homeFragment;
+    private TaskFragment taskFragment;
+    private SchedFragment schedFragment;
+    private FieldFragment fieldFragment;
+    private NoteFragment noteFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +59,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        HomeFragment homeFrag = HomeFragment.newInstance("param1", "param2");
-        TransitionFragment(homeFrag);
+        homeFragment = HomeFragment.newInstance("param1", "param2");
+        TransitionFragment(homeFragment);
     }
 
     @Override
@@ -89,20 +101,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            HomeFragment homeFrag = HomeFragment.newInstance("param1", "param2");
-            TransitionFragment(homeFrag);
+            homeFragment = HomeFragment.newInstance("param1", "param2");
+            TransitionFragment(homeFragment);
         } else if (id == R.id.nav_task) {
-            TaskFragment taskFrag = TaskFragment.newInstance("param1", "param2");
-            TransitionFragment(taskFrag);
+            taskFragment = TaskFragment.newInstance("param1", "param2");
+            TransitionFragment(taskFragment);
         } else if (id == R.id.nav_sched) {
-            SchedFragment schedFrag = SchedFragment.newInstance("param1", "param2");
-            TransitionFragment(schedFrag);
+            schedFragment = SchedFragment.newInstance("param1", "param2");
+            TransitionFragment(schedFragment);
         } else if (id == R.id.nav_field) {
-            FieldFragment fieldFrag = FieldFragment.newInstance("param1", "param2");
-            TransitionFragment(fieldFrag);
+            fieldFragment = FieldFragment.newInstance("param1", "param2");
+            TransitionFragment(fieldFragment);
         } else if (id == R.id.nav_note) {
-            NoteFragment noteFrag = NoteFragment.newInstance();
-            TransitionFragment(noteFrag);
+            noteFragment = NoteFragment.newInstance();
+            TransitionFragment(noteFragment);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -114,5 +126,40 @@ public class MainActivity extends AppCompatActivity
         android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult: ReqCode: " + requestCode + ", ResCode: " + resultCode);
+
+        if (resultCode == C.INTENT_RESULT_ADD_NOTE) {
+            String name = data.getStringExtra(C.INTENT_NAME_FIELD);
+            String text = data.getStringExtra(C.INTENT_TEXT_FIELD);
+
+            Log.d(TAG, "onActivityResult: name: " + name + ", text: " + text);
+
+            Note note = new Note(name);
+            note.updateText(text);
+            db.noteDAO().insertAllNotes(note);
+            noteFragment.adapter.notifyDataSetChanged();
+        }
+        else if (resultCode == C.INTENT_RESULT_EDIT_NOTE) {
+            String name = data.getStringExtra(C.INTENT_NAME_FIELD);
+            String text = data.getStringExtra(C.INTENT_TEXT_FIELD);
+            int id = data.getIntExtra(C.INTENT_ID_FIELD, 0);
+
+            Log.d(TAG, "onActivityResult: name: " + name + ", text: " + text);
+
+            Note note = db.noteDAO().findNoteById(id);
+
+            Log.d(TAG, "Found note");
+            Log.d(TAG, "onActivityResult: original name: " + note.getName() + ", original text: " + note.getText());
+
+            note.updateNameAndText(name, text);
+            db.noteDAO().updateAllNotes(note);
+            noteFragment.adapter.notifyDataSetChanged();
+        }
     }
 }

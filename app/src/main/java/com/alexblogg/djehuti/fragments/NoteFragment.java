@@ -25,7 +25,7 @@ public class NoteFragment extends Fragment {
     private static final String TAG = "NoteFragment";
 
     RecyclerView recyclerView;
-    RecyclerView.Adapter adapter;
+    public RecyclerView.Adapter adapter;
 
     FloatingActionButton add;
 
@@ -56,7 +56,7 @@ public class NoteFragment extends Fragment {
         recyclerView = view.findViewById(R.id.note_list);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        adapter = new NoteAdapter(notes);
+        adapter = new NoteAdapter(notes, this.getActivity());
         recyclerView.setAdapter(adapter);
 
         add = (FloatingActionButton) view.findViewById(R.id.add_fab);
@@ -74,23 +74,33 @@ public class NoteFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Log.d(TAG, "onActivityResult: ReqCode: " + requestCode + ", ResCode: " + resultCode);
-
-        if (resultCode == C.INTENT_RESULT_ADD_NOTE) {
-            String name = data.getStringExtra(C.INTENT_NAME_FIELD);
-            String text = data.getStringExtra(C.INTENT_TEXT_FIELD);
-
-            Log.d(TAG, "onActivityResult: name: " + name + ", text: " + text);
-
-            Note note = new Note(name);
-            note.updateText(text);
-            MainActivity.db.noteDAO().insertAllNotes(note);
-        }
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        Log.d(TAG, "onActivityResult: ReqCode: " + requestCode + ", ResCode: " + resultCode);
+//
+//        if (resultCode == C.INTENT_RESULT_ADD_NOTE) {
+//            String name = data.getStringExtra(C.INTENT_NAME_FIELD);
+//            String text = data.getStringExtra(C.INTENT_TEXT_FIELD);
+//
+//            Log.d(TAG, "onActivityResult: name: " + name + ", text: " + text);
+//
+//            Note note = new Note(name);
+//            note.updateText(text);
+//            MainActivity.db.noteDAO().insertAllNotes(note);
+//        }
+//        else if (resultCode == C.INTENT_RESULT_EDIT_NOTE) {
+//            String name = data.getStringExtra(C.INTENT_NAME_FIELD);
+//            String text = data.getStringExtra(C.INTENT_TEXT_FIELD);
+//
+//            Log.d(TAG, "onActivityResult: name: " + name + ", text: " + text);
+//
+//            Note note = MainActivity.db.noteDAO().findNoteByName(name);
+//            note.updateText(text);
+//            MainActivity.db.noteDAO().updateAllNotes(note);
+//        }
+//    }
 
     @Override
     public void onDetach() {

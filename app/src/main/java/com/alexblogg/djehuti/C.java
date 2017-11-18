@@ -15,6 +15,7 @@ public class C {
     public static final String INTENT_GOAL_FIELD = "goal_field";
     public static final String INTENT_NAME_FIELD = "name_field";
     public static final String INTENT_TEXT_FIELD = "text_field";
+    public static final String INTENT_ID_FIELD = "id_field";
 
     public static final String GOAL_ADD = "goal_add";
     public static final String GOAL_EDIT = "goal_edit";

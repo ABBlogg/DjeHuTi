@@ -43,6 +43,21 @@ public class Note {
 
     public void updateText(String text) {
         this.text = text;
+        updateDate();
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+        updateDate();
+    }
+
+    public void updateNameAndText(String name, String text) {
+        this.name = name;
+        this.text = text;
+        updateDate();
+    }
+
+    public void updateDate() {
         this.dateEdited = new Date();
     }
 
